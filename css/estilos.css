@@ -249,17 +249,17 @@ body:not(.inicio) header {
   z-index: 100;
 
   & hgroup {
-    display:none;
+    /* display:none; */
     height: 25vw;
     position: relative;
 
 
     & h1 svg {
       position: fixed;
-      top: 30px;
+      top: 35px;
       left: 2rem;
       width: 3.5rem;
-      height: 3.5rem;
+      height: 4rem;
       z-index: 11;
       display:none;
     }
