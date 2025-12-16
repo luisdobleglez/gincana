@@ -158,7 +158,7 @@ h4 {
 }
 
 main li{
-  padding:0 0 var(--uni) var(--uni)
+  padding:0 0 calc(var(--uni) * 0.8) var(--uni)
 }
 
 main li::before {
