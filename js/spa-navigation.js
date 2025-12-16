@@ -3,67 +3,80 @@ class Navegacion {
         this.enlaces = enlaces;
         this.inicio = inicio;
         this.duracionTransicion = duracionTransicion;
+
         this.establecerEstilos();
+        this.ocultarTodo();
         this.navegar();
-        this.cargarDesdeURL(); // Carga inicial basada en la URL
+        this.cargarDesdeURL();
     }
 
     establecerEstilos() {
-        const estilos = document.querySelector('head style') || document.createElement('style');
-        estilos.innerHTML += '.pg { min-height: 100vh; transition: all ' + this.duracionTransicion + 'ms ease; }';
-        if (!estilos.parentNode) document.head.appendChild(estilos);
+        let estilos = document.querySelector('head style');
+        if (!estilos) {
+            estilos = document.createElement('style');
+            document.head.appendChild(estilos);
+        }
+        estilos.innerHTML += `
+            .pg {
+                min-height: 100vh;
+                transition: opacity ${this.duracionTransicion}ms ease;
+            }
+        `;
+    }
+
+    ocultarTodo() {
+        document.querySelectorAll('.pg').forEach(el => {
+            el.style.display = 'none';
+            el.style.opacity = 0;
+        });
     }
 
     navegar() {
         const links = document.querySelectorAll(`${this.enlaces} a`);
-
-        const resetear = () => {
-            document.querySelectorAll('.pg').forEach(element => {
-                element.style.display = 'none';
-                element.style.opacity = 0;
-            });
-        };
 
         links.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
 
                 const targetId = link.getAttribute('href').replace('#', '');
-                const targetElement = document.getElementById(targetId);
+                this.mostrarSeccion(targetId);
 
-                if (targetElement) {
-                    resetear();
-                    targetElement.style.display = 'block';
-                    targetElement.style.opacity = 1;
-
-                    document.body.className = "";
-                    document.body.classList.add(targetId);
-
-                    // Actualizar la URL sin #
-                    history.pushState({}, "", `/#${targetId}`);
-                    console.log('Elemento mostrado: ' + targetId);
-                }
+                history.pushState({}, '', `#${targetId}`);
             });
         });
 
-        // Escuchar los cambios de historial (botón atrás/adelante del navegador)
-        window.addEventListener("popstate", () => {
+        window.addEventListener('popstate', () => {
             this.cargarDesdeURL();
         });
     }
 
     cargarDesdeURL() {
-        let path = window.location.pathname.replace('/', '') || this.inicio; // Obtener ruta sin "/"
+        const hash = window.location.hash.replace('#', '') || this.inicio;
+        this.mostrarSeccion(hash);
+    }
 
-        const section = document.getElementById(path);
-        if (section) {
-            document.querySelectorAll('.pg').forEach(el => el.style.display = 'none');
-            section.style.display = 'block';
+    mostrarSeccion(id) {
+        const section = document.getElementById(id);
+        if (!section) return;
+
+        this.ocultarTodo();
+
+        section.style.display = 'block';
+        requestAnimationFrame(() => {
             section.style.opacity = 1;
-        }
+        });
+
+        document.body.className = '';
+        document.body.classList.add(id);
+
+        console.log('Sección activa:', id);
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    new Navegacion({ enlaces: '#menu', inicio: 'inicio' });
+document.addEventListener('DOMContentLoaded', () => {
+    new Navegacion({
+        enlaces: '#menu',
+        inicio: 'inicio',
+        duracionTransicion: 500
+    });
 });
